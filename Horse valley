@@ -1,0 +1,142 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+
+-- Create a new window with the specified settings
+local Window = OrionLib:MakeWindow({
+  Name = "Lost Valley",
+  HidePremium = false,
+  SaveConfig = true,
+  ConfigFolder = "MyConfigFolder",
+  IntroEnabled = false,
+  Icon = "https://www.roblox.com/Thumbs/Avatar.ashx?x=100&y=100&userid=1",
+})
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local killTab = Window:MakeTab({
+  Name = "Fun",
+  Icon = "rbxassetid://123456789",
+  PremiumOnly = false,
+})
+
+local playerList = {}
+for _, player in ipairs(game.Players:GetPlayers()) do
+    table.insert(playerList, player.Name)
+end
+
+local selectedPlayerName = ""
+
+killTab:AddDropdown({
+    Name = "PlayerDropdown",
+    Default = "",
+    Options = playerList,
+    Callback = function(selectedPlayer)
+        selectedPlayerName = selectedPlayer
+        print("Selected player:", selectedPlayerName)
+    end    
+})
+
+killTab:AddButton({
+    Name = "Force Ride horse",
+    Callback = function()
+        local targetName = selectedPlayerName
+        
+        local targetPlayer = game.Players:FindFirstChild(targetName)
+        if targetPlayer then
+            local args = {
+                [1] = "Horse",
+                [2] = "Mount",
+                [3] = workspace:WaitForChild("Horses"):WaitForChild(targetName):WaitForChild("HumanoidRootPart")
+            }
+            
+            game:GetService("ReplicatedStorage"):WaitForChild("Signals"):WaitForChild("Interact"):FireServer(unpack(args))
+        else
+            print("Could not find player with username: " .. targetName)
+        end
+    end
+})
+
+killTab:AddButton({
+    Name = "Close Players door",
+    Callback = function()
+        local targetName = selectedPlayerName
+        
+        local targetPlayer = game.Players:FindFirstChild(targetName)
+        if targetPlayer then
+            local args = {
+                [1] = "Stall2",
+                [2] = "Close Door",
+                [3] = workspace:WaitForChild("Buildings"):WaitForChild("Stable"):WaitForChild("Stalls"):WaitForChild(targetName):WaitForChild("Door"):WaitForChild("Plate")
+            }
+            
+            game:GetService("ReplicatedStorage"):WaitForChild("Signals"):WaitForChild("Interact"):FireServer(unpack(args))
+        else
+            print("Could not find player with username: " .. targetName)
+        end
+    end
+})
+
+killTab:AddButton({
+    Name = "Open players door",
+    Callback = function()
+        local targetName = selectedPlayerName
+        
+        local targetPlayer = game.Players:FindFirstChild(targetName)
+        if targetPlayer then
+            local args = {
+                [1] = "Stall",
+                [2] = "Open Door",
+                [3] = workspace:WaitForChild("Buildings"):WaitForChild("Stable"):WaitForChild("Stalls"):WaitForChild(targetName):WaitForChild("Door"):WaitForChild("Plate")
+            }
+            
+            game:GetService("ReplicatedStorage"):WaitForChild("Signals"):WaitForChild("Interact"):FireServer(unpack(args))
+        else
+            print("Could not find player with username: " .. targetName)
+        end
+    end
+})
+
+local tacoTab = Window:MakeTab({
+  Name = "auto sell hay",
+  Icon = "rbxassetid://123456789",
+  PremiumOnly = false,
+})
+
+local loopActive = false
+
+local function loopFunction()
+    while loopActive do
+        local args1 = {
+            [1] = {
+                [1] = 12
+            },
+            [2] = false
+        }
+        -- Execute the command to add cauldron items
+        game:GetService("ReplicatedStorage"):WaitForChild("Signals"):WaitForChild("AddCauldronItems"):FireServer(unpack(args1))
+        
+        local teleportPos = Vector3.new(25, 7, -25)
+        -- Execute the command to teleport to the specified coordinates
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(teleportPos)
+        
+        wait(1) -- Adjust the delay between iterations as needed
+    end
+end
+
+tacoTab:AddButton({
+    Name = "Start Loop",
+    Callback = function()
+        loopActive = true
+        loopFunction()
+    end
+})
+
+tacoTab:AddButton({
+    Name = "Stop Loop",
+    Callback = function()
+        loopActive = false
+    end
+})
+
+local teleportPos = Vector3.new(25, 7, -26)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(teleportPos)
